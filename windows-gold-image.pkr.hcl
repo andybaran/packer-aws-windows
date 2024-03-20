@@ -44,7 +44,7 @@ source "amazon-ebs" "windows" {
     purpose = "Boundary team RDP testing"
   }
 
-// Communicator Settings and Credentials
+  // Communicator Settings and Credentials
   user_data_file = "./bootstrap_win.txt"
   communicator   = "winrm"
   winrm_use_ssl = "true"
@@ -55,8 +55,16 @@ source "amazon-ebs" "windows" {
 }
 
 build {
-  name    = "windows-packer-${local.timestamp}" //ToDo: There has to be a better way to reference this value as it appearso n line 18
+  name    = "windows-packer-${local.timestamp}" //ToDo: There has to be a better way to reference this value as it appearso in line 18
   sources = ["source.amazon-ebs.windows"]
+
+  provisioner "powershell" {
+    inline = [
+      "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/InitializeInstance.ps1 -Schedule",
+      "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/SysprepInstance.ps1 -NoShutdown"
+    ]
+}
+
   /* HCP Packer not needed at this time
   hcp_packer_registry {
     bucket_name = "windows"
